@@ -143,7 +143,7 @@ def mine():
     is_valid_proof = blockchain.valid_proof(block_string, data['proof'])
 
     if is_valid_proof:
-        previous_hash = hashlib.sha256(block_string.encode()).hexdigest()
+        previous_hash = blockchain.hash(blockchain.last_block)
         new_block = blockchain.new_block(data['proof'], previous_hash)
 
         blockchain.new_transaction(sender='0', receiver=data['id'], amount=1)
@@ -189,7 +189,7 @@ def new_transaction():
     index = blockchain.new_transaction(sender=data['sender'], receiver=data['receiver'], amount=data['amount'])
 
     response = {
-        'message': ''
+        'message': f'Your transaction is located in block {index}'
     }
 
     return jsonify(response), 200

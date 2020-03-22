@@ -53,6 +53,7 @@ if __name__ == '__main__':
     id = f.read()
     print("ID is", id)
     f.close()
+    coins_mined = 0
 
     # Run forever until interrupted
     while True:
