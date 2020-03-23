@@ -131,7 +131,7 @@ blockchain = Blockchain()
 @app.route('/mine', methods=['POST'])
 def mine():
     data = request.get_json()
-    
+
     # check for proof and id
     required_params = ['proof', 'id']
     if not all(param in data for param in required_params):
@@ -152,9 +152,7 @@ def mine():
             'message': 'Congratulations!',
         }
     else:
-        response = {
-            'message': 'Invalid proof!'
-        }
+        response = {'message': 'Invalid proof!'}
 
     return jsonify(response), 200
 
@@ -186,11 +184,11 @@ def new_transaction():
         response = {'message': "Missing required params!"}
         return jsonify(response), 400
 
-    index = blockchain.new_transaction(sender=data['sender'], receiver=data['receiver'], amount=data['amount'])
+    index = blockchain.new_transaction(sender=data['sender'],
+                                       receiver=data['receiver'],
+                                       amount=data['amount'])
 
-    response = {
-        'message': f'Your transaction is located in block {index}'
-    }
+    response = {'message': f'Your transaction is located in block {index}'}
 
     return jsonify(response), 200
 
