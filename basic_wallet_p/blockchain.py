@@ -151,10 +151,10 @@ def mine():
     is_valid_proof = blockchain.valid_proof(block_string, data['proof'])
 
     if is_valid_proof:
+        blockchain.new_transaction(sender='lambda', receiver=data['id'], amount=1)
+
         previous_hash = blockchain.hash(blockchain.last_block)
         new_block = blockchain.new_block(data['proof'], previous_hash)
-
-        blockchain.new_transaction(sender='0', receiver=data['id'], amount=1)
 
         response = {
             'message': 'Congratulations!',
@@ -195,9 +195,9 @@ def get_transaction(user_id):
             if transaction['sender'] == user_id or transaction['receiver'] == user_id:
                 id_transactions.append(transaction)
             if transaction['sender'] == user_id:
-                id_balance -= transaction.amount
+                id_balance -= transaction['amount']
             elif transaction['receiver'] == user_id:
-                id_balance += transaction.amount
+                id_balance += transaction['amount']
 
     if len(id_transactions) == 0:
         id_transactions.append(
