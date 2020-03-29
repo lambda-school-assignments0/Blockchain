@@ -7,6 +7,7 @@ from time import time
 from uuid import uuid4
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 
 class Blockchain(object):
@@ -128,6 +129,13 @@ node_identifier = str(uuid4()).replace('-', '')
 blockchain = Blockchain()
 
 
+@app.route('/', methods=['GET'])
+def get():
+    response = jsonify({'message': 'GET "/" status: 200'})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 @app.route('/mine', methods=['POST'])
 def mine():
     data = request.get_json()
@@ -143,10 +151,10 @@ def mine():
     is_valid_proof = blockchain.valid_proof(block_string, data['proof'])
 
     if is_valid_proof:
+        blockchain.new_transaction(sender='lambda', receiver=data['id'], amount=1)
+
         previous_hash = blockchain.hash(blockchain.last_block)
         new_block = blockchain.new_block(data['proof'], previous_hash)
-
-        blockchain.new_transaction(sender='0', receiver=data['id'], amount=1)
 
         response = {
             'message': 'Congratulations!',
@@ -175,6 +183,37 @@ def full_chain():
     }
     return jsonify(response), 200
 
+
+@app.route('/transactions/id/<user_id>', methods=['GET'])
+def get_transaction(user_id):
+    id_transactions = []
+    id_balance = 0
+
+    for block in blockchain.chain:
+        print(block)
+        for transaction in block['transactions']:
+            if transaction['sender'] == user_id or transaction['receiver'] == user_id:
+                id_transactions.append(transaction)
+            if transaction['sender'] == user_id:
+                id_balance -= transaction['amount']
+            elif transaction['receiver'] == user_id:
+                id_balance += transaction['amount']
+
+    if len(id_transactions) == 0:
+        id_transactions.append(
+            {'message': 'Error: no transactions for this user_id found!'})
+
+    response = {
+        'current_balance': id_balance,
+        'transactions': id_transactions,
+    }
+
+    response = jsonify(response)
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response, 200
+
+
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
     data = request.get_json()
@@ -195,4 +234,4 @@ def new_transaction():
 
 # Run the program on port 5000
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='localhost', port=5000)
